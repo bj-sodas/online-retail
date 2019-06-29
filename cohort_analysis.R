@@ -7,18 +7,18 @@ library(lubridate)
 old <- theme_set(theme_tufte() + theme(text = element_text(family = 'Menlo')))
 
 # from UCI repository
-raw <- readxl::read_xlsx("data.xlsx") %>% clean_names()
+raw <- readRDS("raw.rds") %>% clean_names()
 
 # Tidy up data ---- 
 
-
 # count multiple items as one invoice
 by_invoice <- raw %>% 
-    select(customer_id, invoice_date) %>% 
+    select(invoice_no, customer_id, invoice_date) %>% 
     mutate(invoice_date = as.Date(invoice_date)) %>% 
     # start from year 2011
     # remove invalid customer id
-    filter(year(invoice_date) > 2010, !is.na(customer_id)) %>% 
+    # remove invalid invoices
+    filter(year(invoice_date) > 2010, !is.na(customer_id), !str_detect(invoice_no, "^[AC]")) %>% 
     distinct()
 
 # count multiple purchases as one customer
