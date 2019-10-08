@@ -2,3 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+instacart_2017_*
+derby.log
+logs
