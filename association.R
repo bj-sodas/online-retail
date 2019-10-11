@@ -1,5 +1,6 @@
 library(sparklyr)
 library(dplyr)
+library(readr)
 library(purrr)
 library(igraph)
 library(visNetwork)
@@ -39,21 +40,23 @@ spark_disconnect_all()
 
 # iGraph ------------------------------------------------------------------
 
-
+# get product names
 products <- read_csv("instacart_2017_05_01/products.csv")
 
+# bind to nodes
 nodes <- data.frame(id = unique(asso$antecedent, asso$consequent)) %>% 
     distinct() %>% 
     left_join(products, by = c("id" = "product_id")) %>% 
     select(id, label = product_name)
 
-edges <- asso %>% mutate(weight = confidence)
+edges <- asso %>% mutate(weight = confidence * 10)
 
 df.g <- graph_from_data_frame(edges, directed = TRUE, vertices = nodes)
 plot(
     df.g,
-    edge.arrow.size = .2,
+    edge.arrow.size = .1,
     edge.curved = .3,
+    edge.width = edges$weight,
     vertex.color = "lightblue",
     vertex.label.color = "darkblue",
     vertex.label.cex = .7,
@@ -75,13 +78,14 @@ edges <- asso %>%
            label = format(confidence, digits = 2)) %>% 
     rename(from = antecedent, to = consequent)
 
-visNetwork(nodes, edges, height = "600px")
+visNetwork(nodes, edges, height = "600px", width = "100%")
 
 
 # Finding Subgroups -------------------------------------------------------
 
-
-net.sym <- as.undirected(df.g, mode = "collapse", edge.attr.comb = list(weight = "sum", "ignore"))
+ 
+net.sym <- as.undirected(df.g, mode = "collapse", 
+                         edge.attr.comb = list(weight = "sum", "ignore"))
 ceb <- cluster_edge_betweenness(net.sym)
 dendPlot(ceb, mode = "hclust")
 plot(ceb, net.sym)
