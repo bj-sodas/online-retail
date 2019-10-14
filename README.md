@@ -14,7 +14,7 @@ techniques.
 
 ## Import Data to Spark
 
-To facilitate the data processing (\~ 500MB), we run a local Spark
+To facilitate the data processing (~ 500MB), we run a local Spark
 cluster on our machine through `SparklyR`.
 
 ``` r
@@ -116,7 +116,7 @@ edges <- asso %>% mutate(weight = confidence * 10)
 df.g <- graph_from_data_frame(edges, directed = TRUE, vertices = nodes)
 plot(
     df.g,
-    edge.arrow.size = .1,
+    edge.arrow.size = .5,
     edge.curved = .3,
     edge.width = edges$weight,
     vertex.color = "lightblue",
